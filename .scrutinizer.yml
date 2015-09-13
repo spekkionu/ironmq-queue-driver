@@ -6,10 +6,10 @@ checks:
         code_rating: true
         duplication: true
 build:
+    environment:
+        php:
+            version: 5.6
     tests:
-        before:
-            - curl -s http://getcomposer.org/installer | php
-            - php composer.phar install --dev
         override:
             -
                 command: 'vendor/bin/phpunit --configuration phpunit.travis.xml --coverage-text'
