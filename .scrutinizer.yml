@@ -5,9 +5,20 @@ checks:
     php:
         code_rating: true
         duplication: true
+build:
+    tests:
+        before:
+            - curl -s http://getcomposer.org/installer | php
+            - php composer.phar install --dev
+        override:
+            -
+                command: 'vendor/bin/phpunit --configuration phpunit.travis.xml --coverage-text'
+                coverage:
+                    file: 'coverage.clover'
+                    format: 'php-clover'
 
 tools:
-    external_code_coverage: true
+    external_code_coverage: false
     php_mess_detector: true
     php_cpd: true
     php_pdepend:
