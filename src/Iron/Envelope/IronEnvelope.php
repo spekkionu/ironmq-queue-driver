@@ -5,31 +5,20 @@ use PMG\Queue\Envelope;
 
 class IronEnvelope implements Envelope
 {
-    /**
-     * @var string Message ID
+   /**
+     * @var int Job ID
      */
-    private $message_id;
+    private $id;
 
     /**
      * @var Envelope
      */
     private $wrapped;
-    
-    /**
-     * @var null
-     */
-    private $receiptHandle;
 
-    /**
-     * @param $message_id
-     * @param Envelope $wrapped
-     * @param null $receiptHandle
-     */
-    public function __construct($message_id, Envelope $wrapped, $receiptHandle = null)
+    public function __construct($id, Envelope $wrapped)
     {
-        $this->message_id = $message_id;
+        $this->id = $id;
         $this->wrapped = $wrapped;
-        $this->receiptHandle = $receiptHandle;
     }
 
     /**
@@ -57,16 +46,8 @@ class IronEnvelope implements Envelope
         return $this->wrapped->retry();
     }
 
-    public function getMessageId()
+    public function getId()
     {
-        return $this->message_id;
-    }
-
-    /**
-     * @return null
-     */
-    public function getReceiptHandle()
-    {
-        return $this->receiptHandle;
+        return $this->id;
     }
 }

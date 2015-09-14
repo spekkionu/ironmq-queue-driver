@@ -42,7 +42,7 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
 
         $env = $driver->enqueue($queueName, $message);
         $this->assertInstanceOf('Spekkionu\PMG\Queue\Iron\Envelope\IronEnvelope', $env);
-        $this->assertEquals($messageId, $env->getMessageId());
+        $this->assertEquals($messageId, $env->getId());
     }
 
     public function testDequeue()
@@ -66,7 +66,7 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
         $driver = new IronDriver($client, $serializer);
         $env = $driver->dequeue('q');
         $this->assertInstanceOf('Spekkionu\PMG\Queue\Iron\Envelope\IronEnvelope', $env);
-        $this->assertEquals($messageId, $env->getMessageId());
+        $this->assertEquals($messageId, $env->getId());
     }
 
     public function testAck()
