@@ -69,6 +69,24 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($messageId, $env->getId());
     }
 
+    public function testDequeueWithNoResult()
+    {
+        $queueName = 'q';
+        $messageId = 123;
+        $messageBody = 'message body';
+        $serializedMessageBody = json_encode($messageBody);
+        $message = new \PMG\Queue\SimpleMessage('SimpleMessage', $messageBody);
+        $wrapped = new \PMG\Queue\DefaultEnvelope($message, 1);
+        $client = m::mock('IronMQ\IronMQ');
+        $client->shouldReceive('getMessage')->with($queueName)->once()->andReturn(null);
+        $serializer = m::mock('PMG\Queue\Serializer\Serializer');
+        $serializer->shouldNotReceive('unserialize');
+    
+        
+        $driver = new IronDriver($client, $serializer);
+        $this->assertNull($driver->dequeue('q'));
+    }
+
     public function testAck()
     {
         $queueName = 'q';
