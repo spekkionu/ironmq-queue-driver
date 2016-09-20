@@ -49,16 +49,18 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
     {
         $queueName = 'q';
         $messageId = 123;
+        $reservationId = 456;
         $messageBody = 'message body';
         $serializedMessageBody = json_encode($messageBody);
         $job = new \stdClass;
         $job->id = $messageId;
         $job->reserved_count = 1;
         $job->body = $serializedMessageBody;
+        $job->reservation_id = $reservationId;
         $message = new \PMG\Queue\SimpleMessage('SimpleMessage', $messageBody);
         $wrapped = new \PMG\Queue\DefaultEnvelope($message, 1);
         $client = m::mock('IronMQ\IronMQ');
-        $client->shouldReceive('getMessage')->with($queueName)->once()->andReturn($job);
+        $client->shouldReceive('reserveMessage')->with($queueName)->once()->andReturn($job);
         $serializer = m::mock('PMG\Queue\Serializer\Serializer');
         $serializer->shouldReceive('unserialize')->with($serializedMessageBody)->once()->andReturn($wrapped);
     
@@ -67,18 +69,20 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
         $env = $driver->dequeue('q');
         $this->assertInstanceOf('Spekkionu\PMG\Queue\Iron\Envelope\IronEnvelope', $env);
         $this->assertEquals($messageId, $env->getId());
+        $this->assertEquals($reservationId, $env->getReservationId());
     }
 
     public function testDequeueWithNoResult()
     {
         $queueName = 'q';
         $messageId = 123;
+        $reservationId = 456;
         $messageBody = 'message body';
         $serializedMessageBody = json_encode($messageBody);
         $message = new \PMG\Queue\SimpleMessage('SimpleMessage', $messageBody);
         $wrapped = new \PMG\Queue\DefaultEnvelope($message, 1);
         $client = m::mock('IronMQ\IronMQ');
-        $client->shouldReceive('getMessage')->with($queueName)->once()->andReturn(null);
+        $client->shouldReceive('reserveMessage')->with($queueName)->once()->andReturn(null);
         $serializer = m::mock('PMG\Queue\Serializer\Serializer');
         $serializer->shouldNotReceive('unserialize');
     
@@ -91,11 +95,13 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
     {
         $queueName = 'q';
         $messageId = 123;
+        $reservationId = 456;
         $serializer = m::mock('PMG\Queue\Serializer\Serializer');
         $client = m::mock('IronMQ\IronMQ');
-        $client->shouldReceive('deleteMessage')->with($queueName, $messageId)->once();
+        $client->shouldReceive('deleteMessage')->with($queueName, $messageId, $reservationId)->once();
         $env = m::mock('Spekkionu\PMG\Queue\Iron\Envelope\IronEnvelope');
         $env->shouldReceive('getId')->once()->andReturn($messageId);
+        $env->shouldReceive('getReservationId')->once()->andReturn($reservationId);
 
         $driver = new IronDriver($client, $serializer);
         $driver->ack('q', $env);
@@ -132,11 +138,13 @@ class IronDriverTest extends PHPUnit_Framework_TestCase
     {
         $queueName = 'q';
         $messageId = 123;
+        $reservationId = 456;
         $serializer = m::mock('PMG\Queue\Serializer\Serializer');
         $client = m::mock('IronMQ\IronMQ');
-        $client->shouldReceive('deleteMessage')->with($queueName, $messageId)->once();
+        $client->shouldReceive('deleteMessage')->with($queueName, $messageId, $reservationId)->once();
         $env = m::mock('Spekkionu\PMG\Queue\Iron\Envelope\IronEnvelope');
         $env->shouldReceive('getId')->once()->andReturn($messageId);
+        $env->shouldReceive('getReservationId')->once()->andReturn($reservationId);
 
         $driver = new IronDriver($client, $serializer);
         $driver->fail('q', $env);
