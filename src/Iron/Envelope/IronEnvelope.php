@@ -15,10 +15,16 @@ class IronEnvelope implements Envelope
      */
     private $wrapped;
 
-    public function __construct($id, Envelope $wrapped)
+    /**
+     * @var string|null
+     */
+    private $reservation_id;
+
+    public function __construct($id, Envelope $wrapped, $reservation_id = null)
     {
         $this->id = $id;
         $this->wrapped = $wrapped;
+        $this->reservation_id = $reservation_id;
     }
 
     /**
@@ -49,5 +55,10 @@ class IronEnvelope implements Envelope
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getReservationId()
+    {
+        return $this->reservation_id;
     }
 }

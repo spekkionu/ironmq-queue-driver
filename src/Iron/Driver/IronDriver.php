@@ -53,12 +53,12 @@ class IronDriver extends AbstractPersistanceDriver
      */
     public function dequeue($queueName)
     {
-        $job = $this->iron->getMessage($queueName);
+        $job = $this->iron->reserveMessage($queueName);
 
         if ($job) {
             $wrapped = $this->unserialize($job->body);
             $message = new DefaultEnvelope($wrapped->unwrap(), $job->reserved_count);
-            $env = new IronEnvelope($job->id, $message);
+            $env = new IronEnvelope($job->id, $message, $job->reservation_id);
 
             return $env;
         }
@@ -79,7 +79,7 @@ class IronDriver extends AbstractPersistanceDriver
             ));
         }
 
-        $this->iron->deleteMessage($queueName, $envelope->getId());
+        $this->iron->deleteMessage($queueName, $envelope->getId(), $envelope->getReservationId());
     }
 
     /**
